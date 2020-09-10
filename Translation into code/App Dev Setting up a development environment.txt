@@ -1,0 +1,55 @@
+#Lab: App Dev: Setting up a Development Environment v1.1
+#Objectives
+#In this lab, you will perform the following tasks:
+#Provision a Google Compute Engine instance.
+#Connect to the instance using SSH.
+#Install software on the instance.
+#Verify the software installation.
+
+#Create VM instance and allow full access to all Cloud APIs 
+gcloud beta compute --project=qwiklabs-gcp-02-402a195e2f0e instances create dev-instance \
+--zone=us-central1-a --machine-type=e2-medium --subnet=default --network-tier=PREMIUM \
+--maintenance-policy=MIGRATE --service-account=256885625364-compute@developer.gserviceaccount.com \
+--scopes=https://www.googleapis.com/auth/cloud-platform --tags=http-server \
+--image=debian-10-buster-v20200902 --image-project=debian-cloud --boot-disk-size=10GB \
+--boot-disk-type=pd-standard --boot-disk-device-name=dev-instance \
+--no-shielded-secure-boot --no-shielded-vtpm --no-shielded-integrity-monitoring \
+--reservation-affinity=any
+
+#enable Allow HTTP traffic in firewall section
+
+gcloud compute --project=qwiklabs-gcp-02-402a195e2f0e firewall-rules create default-allow-http --direction=INGRESS --priority=1000 --network=default --action=ALLOW --rules=tcp:80 --source-ranges=0.0.0.0/0 --target-tags=http-server
+
+#SSH into the VM instance
+gcloud compute ssh dev-instance
+
+#Update Debian package list
+sudo apt-get update
+
+#Install git 
+sudo apt-get install git
+
+#Download Node.js setup script
+curl -sL https://deb.nodesource.com/setup_6.x | sudo -E bash -
+
+#install npm and Node.js
+sudo apt install nodejs
+
+#check the version of Node.js
+node -v
+
+#clone the class repository
+git clone https://github.com/GoogleCloudPlatform/training-data-analyst
+
+#change the working directory
+cd ~/training-data-analyst/courses/developingapps/nodejs/devenv/
+
+#run a simple web server,
+sudo node server/app.js
+
+#install the Node.js library for Compute Engine
+npm install
+
+#run a simple Node.js application that lists Compute Engine instances
+node list-gce-instances.js
+
